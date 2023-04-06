@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+    <!-- data-bs-theme="dark" -->
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{% static '/style.css' %}"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js" integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script
+    src="https://code.jquery.com/jquery-3.6.4.min.js"
+    integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
+    crossorigin="anonymous"></script>
+    <link href='https://fonts.googleapis.com/css?family=Great Vibes' rel='stylesheet'>
+    <title>Notice App</title>
+</head>
+<body id="body" onload="check()">
+    <div class="container mt-2">
+        <div class="text-center mt-2">
+            <input type="image" id="clg-logo" src="{% static 'images/MR white.png' %}">  
+        </div>
+        <marquee id="quote" style="color: #939aff;" scrollamount="15"><h1>{{quote}}</h1></marquee>
+        <h1 class="text-center" style="color: white;font-family: 'Great Vibes';">Notice</h1>
+        <div id="my-carousel" class="carousel slide" >
+            <div class="carousel-inner">
+                {% for i in x reversed %}
+                <div class="card carousel-item example" id="content">
+                    <div class="card-header text-center" id="qw">
+                    <b>{{i.title}}</b>
+                    </div>
+                    <div class="card-body">
+                        <h1 class="card-text d-flex p-2" style="text-align: justify;">{{i.message}}</h1>
+                        <h3 class="card-text d-flex p-2 float-end">{{i.date}}</h3>
+                    </div>
+                </div>
+            {% endfor %} 
+                <button class="carousel-control-next" id="btn" type="button" data-bs-target="#my-carousel" data-bs-slide="next">
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="footer">
+        <p style="margin-bottom: 10px;margin-top: 2px;">
+        @Copyright MRIIC 2023
+        </p>
+    </div>
+<script>
+    const elements = document.querySelectorAll('.example');
+    elements[0].className+=" active"
+    
+    setInterval(btnclick, 10000); 
+    function btnclick(){
+        document.getElementById("btn").click()
+    }
+    setInterval(quote, 25000);
+    function quote(){
+        $.ajax({
+            type: 'GET',
+            url: 'http://localhost:8000/quote',
+            dataType: "json",
+            async:true,
+            success: function(data) {
+                document.getElementById("quote").innerHTML=`<h1>`+data['quote']+`</h1>`   
+            }
+        });
+    }
+    setInterval(check, 5000);
+    function check() {
+        
+        var audio=new Audio("./media/myaudio.mp3")
+        x=sessionStorage.getItem("count");
+        if(x===null){
+            sessionStorage.setItem("count", "0");
+        }
+        $.ajax({
+            type: 'GET',
+            url: 'http://localhost:8000/count_objects',
+            dataType: "json",
+            async:true,
+            success: function(data) {
+                y=data['count'];
+                x=sessionStorage.getItem("count");
+                if(y!=x){
+                    audio.play()
+                    sessionStorage.setItem("count", y)
+                    location.reload()
+                }
+            }
+        });
+    }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js" integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N" crossorigin="anonymous"></script>
+</body>
+</html>
